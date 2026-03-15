@@ -2,6 +2,14 @@
 
 All notable changes to Lumi Diary Skill will be documented in this file.
 
+## [0.1.5] — 2026-03-15
+
+### Added
+
+- **MCP Server** — `src/mcp_server.py` wraps all 8 tool functions as MCP tools, usable with Claude Desktop, Cursor, VS Code Copilot, and any MCP-compatible client.
+- **MCP Prompt** — `lumi_persona` prompt exposes the full Lumi behavioral protocol for clients that support prompt injection.
+- **pyproject.toml** — standard Python packaging with `lumi-diary` entry point for MCP server.
+
 ## [0.1.4] — 2026-03-15
 
 ### Fixed

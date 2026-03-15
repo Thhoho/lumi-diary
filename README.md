@@ -58,16 +58,49 @@ Lumi automatically adapts based on the conversation context:
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- Python >= 3.10
-- OpenClaw runtime environment
-
-### Installation
+### Option A: OpenClaw Hub
 
 ```bash
 clawhub install lumi-diary
 ```
+
+### Option B: MCP Server (Claude Desktop / Cursor / VS Code Copilot)
+
+```bash
+# Install
+pip install -e .
+# or with uv
+uv pip install -e .
+
+# Run the MCP server
+python -m src.mcp_server
+# or
+fastmcp run src/mcp_server.py
+```
+
+Add to your MCP client config (e.g. `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "lumi-diary": {
+      "command": "python",
+      "args": ["-m", "src.mcp_server"],
+      "cwd": "/path/to/lumi-diary"
+    }
+  }
+}
+```
+
+Optional PNG export (requires Playwright):
+
+```bash
+pip install playwright && playwright install chromium
+```
+
+### Prerequisites
+
+- Python >= 3.10
 
 ### Vault Structure
 
