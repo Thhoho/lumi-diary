@@ -5,7 +5,7 @@ description: >
   a sigh, a snapshot, a roast — and stitches them into radiant, interactive memory scrolls.
   She lives on your device, speaks your squad's slang, and never phones home.
   你的本地优先记忆守护精灵与赛博死党。
-version: 0.1.5
+version: "0.1.5"
 author: THHOHO Weiqi
 permissions:
   - local_file_system: read_write
@@ -124,105 +124,244 @@ system_prompt: |
 
 tools:
   - name: record_group_fragment
-    description: "Record a life fragment. Routes to Solo/Circles/Events via context_type. 记录生活碎片。"
+    description: "Record a life fragment. Routes to Solo/Circles/Events via context_type."
     parameters:
       type: object
       properties:
-        sender_name: { type: string, description: "Sender nickname / 发送者昵称" }
-        content: { type: string, description: "Text or multimodal description / 文本内容" }
-        context_type: { type: string, enum: ["solo", "circle", "event"], description: "Context space / 场景" }
-        media_path: { type: string, description: "Local media path (image/video/audio) / 媒体路径" }
-        event_name: { type: string, description: "Project or event name / 项目或事件名" }
-        emotion_tag: { type: string, description: "Emotion emoji + label / 情绪标签" }
-        story_node_id: { type: string, description: "Shared ID for same moment / 同一事件 ID" }
-        interaction_type: { type: string, enum: ["new_event", "reaction", "complement"], description: "Interaction type / 互动类型" }
-        group_id: { type: string, description: "Group/circle ID / 群组标识" }
-        sender_id: { type: string, description: "IM account ID for identity binding / IM 账号 ID" }
-      required: [sender_name, content, story_node_id, interaction_type, context_type]
+        sender_name:
+          type: string
+          description: "Sender nickname"
+        content:
+          type: string
+          description: "Text or multimodal description"
+        context_type:
+          type: string
+          enum:
+            - solo
+            - circle
+            - event
+          description: "Context space"
+        media_path:
+          type: string
+          description: "Local media path (image/video/audio)"
+        event_name:
+          type: string
+          description: "Project or event name"
+        emotion_tag:
+          type: string
+          description: "Emotion emoji + label"
+        story_node_id:
+          type: string
+          description: "Shared ID for same moment"
+        interaction_type:
+          type: string
+          enum:
+            - new_event
+            - reaction
+            - complement
+          description: "Interaction type"
+        group_id:
+          type: string
+          description: "Group/circle ID"
+        sender_id:
+          type: string
+          description: "IM account ID for identity binding"
+      required:
+        - sender_name
+        - content
+        - story_node_id
+        - interaction_type
+        - context_type
 
   - name: manage_identity
-    description: "Manage owner profile & contacts. 管理身份注册表。"
+    description: "Manage owner profile and contacts."
     parameters:
       type: object
       properties:
-        action: { type: string, enum: ["init_owner", "get_owner", "rename", "lookup", "list_contacts"] }
-        display_name: { type: string, description: "Name to set / 显示名称" }
-        account_id: { type: string, description: "IM account ID / 账号 ID" }
-        original_name: { type: string, description: "Original IM nickname / 原始昵称" }
-      required: [action]
+        action:
+          type: string
+          enum:
+            - init_owner
+            - get_owner
+            - rename
+            - lookup
+            - list_contacts
+        display_name:
+          type: string
+          description: "Name to set"
+        account_id:
+          type: string
+          description: "IM account ID"
+        original_name:
+          type: string
+          description: "Original IM nickname"
+      required:
+        - action
 
   - name: manage_event
-    description: "Start, stop, or query an event scroll. 管理事件画卷。"
+    description: "Start, stop, or query an event scroll."
     parameters:
       type: object
       properties:
-        action: { type: string, enum: ["start", "stop", "query"] }
-        event_name: { type: string }
-        group_id: { type: string, description: "Group ID for namespace isolation / 群组标识" }
-      required: [action, event_name]
+        action:
+          type: string
+          enum:
+            - start
+            - stop
+            - query
+        event_name:
+          type: string
+        group_id:
+          type: string
+          description: "Group ID for namespace isolation"
+      required:
+        - action
+        - event_name
 
   - name: update_circle_dictionary
-    description: "Record personality traits & slang for circle members. 记录圈子人设与黑话。"
+    description: "Record personality traits and slang for circle members."
     parameters:
       type: object
       properties:
-        target_user: { type: string, description: "User nickname or 'group_vibe' / 用户昵称" }
-        traits: { type: array, items: { type: string }, description: "Traits or slang terms / 特征词汇" }
-      required: [target_user, traits]
+        target_user:
+          type: string
+          description: "User nickname or 'group_vibe'"
+        traits:
+          type: array
+          items:
+            type: string
+          description: "Traits or slang terms"
+      required:
+        - target_user
+        - traits
 
   - name: save_meme
-    description: "Archive a legendary moment for future callbacks. 存梗以备日后抛梗。"
+    description: "Archive a legendary moment for future callbacks."
     parameters:
       type: object
       properties:
-        meme_title: { type: string, description: "Short meme name / 梗名" }
-        media_path: { type: string, description: "Meme image/video path / 梗图路径" }
-        context_tags: { type: array, items: { type: string }, description: "Situation tags / 情境标签" }
-      required: [meme_title, context_tags]
+        meme_title:
+          type: string
+          description: "Short meme name"
+        media_path:
+          type: string
+          description: "Meme image/video path"
+        context_tags:
+          type: array
+          items:
+            type: string
+          description: "Situation tags"
+      required:
+        - meme_title
+        - context_tags
 
   - name: render_lumi_canvas
-    description: "Render an interactive memory scroll (HTML). 渲染交互式记忆画卷。"
+    description: "Render an interactive memory scroll (HTML)."
     parameters:
       type: object
       properties:
-        target_event: { type: string, description: "Event name, 'today', or 'this_month' / 事件名" }
-        context_type: { type: string, enum: ["solo", "circle", "event"] }
-        group_id: { type: string, description: "Group ID / 群组标识" }
-        vibe_override: { type: string, description: "Visual theme / 视觉主题" }
-        locale: { type: string, enum: ["en", "zh"], description: "UI language / 界面语言" }
-      required: [target_event]
+        target_event:
+          type: string
+          description: "Event name, 'today', or 'this_month'"
+        context_type:
+          type: string
+          enum:
+            - solo
+            - circle
+            - event
+        group_id:
+          type: string
+          description: "Group ID"
+        vibe_override:
+          type: string
+          description: "Visual theme"
+        locale:
+          type: string
+          enum:
+            - en
+            - zh
+          description: "UI language"
+      required:
+        - target_event
 
   - name: manage_fragment
-    description: "CRUD for recorded fragments (search/get/update/delete). 碎片增删改查。"
+    description: "CRUD for recorded fragments (search/get/update/delete)."
     parameters:
       type: object
       properties:
-        action: { type: string, enum: ["search", "get", "update", "delete"] }
-        fragment_id: { type: string, description: "Fragment ID / 碎片 ID" }
-        keyword: { type: string, description: "Search keyword / 搜索关键词" }
-        sender: { type: string, description: "Filter by sender / 按发送者筛选" }
-        context_type: { type: string, enum: ["solo", "circle", "event"] }
-        group_id: { type: string }
-        event_name: { type: string }
-        story_node_id: { type: string }
-        date_from: { type: string, description: "Start date (ISO) / 起始日期" }
-        date_to: { type: string, description: "End date (ISO) / 截止日期" }
-        limit: { type: integer, description: "Max results (default 20) / 搜索上限" }
-        new_content: { type: string, description: "Content to append / 追加内容" }
-        new_emotion: { type: string, description: "Replacement emotion / 新情绪标签" }
-      required: [action]
+        action:
+          type: string
+          enum:
+            - search
+            - get
+            - update
+            - delete
+        fragment_id:
+          type: string
+          description: "Fragment ID"
+        keyword:
+          type: string
+          description: "Search keyword"
+        sender:
+          type: string
+          description: "Filter by sender"
+        context_type:
+          type: string
+          enum:
+            - solo
+            - circle
+            - event
+        group_id:
+          type: string
+        event_name:
+          type: string
+        story_node_id:
+          type: string
+        date_from:
+          type: string
+          description: "Start date (ISO)"
+        date_to:
+          type: string
+          description: "End date (ISO)"
+        limit:
+          type: integer
+          description: "Max results (default 20)"
+        new_content:
+          type: string
+          description: "Content to append"
+        new_emotion:
+          type: string
+          description: "Replacement emotion"
+      required:
+        - action
 
   - name: export_lumi_scroll
-    description: "Export scroll for sharing: PNG + .lumi seed + HTML. 导出画卷：长图+种子+HTML。"
+    description: "Export scroll for sharing: PNG + .lumi seed + HTML."
     parameters:
       type: object
       properties:
-        target_event: { type: string, description: "Event name / 事件名" }
-        context_type: { type: string, enum: ["solo", "circle", "event"] }
-        group_id: { type: string }
-        vibe_override: { type: string, description: "Visual theme / 视觉主题" }
-        locale: { type: string, enum: ["en", "zh"], description: "UI language / 界面语言" }
-      required: [target_event]
+        target_event:
+          type: string
+          description: "Event name"
+        context_type:
+          type: string
+          enum:
+            - solo
+            - circle
+            - event
+        group_id:
+          type: string
+        vibe_override:
+          type: string
+          description: "Visual theme"
+        locale:
+          type: string
+          enum:
+            - en
+            - zh
+          description: "UI language"
+      required:
+        - target_event
 ---
 
 # 🧚 Lumi Diary
