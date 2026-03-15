@@ -1,4 +1,4 @@
-# 🧚♀ Lumi Diary — Your Local-First Memory Guardian
+# 🧚♀ Lumi Diary — Your Local-First Memory Guardian - OpenClaw Skills
 
 **A privacy-first AI companion that collects your life fragments and weaves them into beautiful, interactive memory scrolls.**
 
