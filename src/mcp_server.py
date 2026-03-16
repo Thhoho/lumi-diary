@@ -1,8 +1,8 @@
 """
-Lumi Diary — MCP Server
+Lumi Diary v0.2.0 — MCP Server Adapter
 
-Wraps all Lumi tool functions as MCP tools, exposing them to any
-MCP-compatible client (Claude Desktop, Cursor, VS Code Copilot, etc.).
+Wraps ``lumi_core`` functions as MCP tools for any MCP-compatible client
+(Claude Desktop, Cursor, VS Code Copilot, etc.).
 
 Run with:
     fastmcp run src/mcp_server.py
@@ -18,16 +18,7 @@ from typing import Any
 
 from mcp.server.fastmcp import FastMCP
 
-from src.handlers import (
-    export_lumi_scroll,
-    manage_event,
-    manage_fragment,
-    manage_identity,
-    record_group_fragment,
-    render_lumi_canvas,
-    save_meme,
-    update_circle_dictionary,
-)
+from src import lumi_core
 
 PERSONA_PATH = Path(__file__).resolve().parent.parent / "SKILL.md"
 
@@ -47,7 +38,7 @@ def _json_result(data: dict[str, Any]) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Prompt: full Lumi persona (clients can attach this to conversations)
+# Prompt: full Lumi persona
 # ---------------------------------------------------------------------------
 
 @mcp.prompt()
@@ -64,7 +55,7 @@ def lumi_persona() -> str:
 
 
 # ---------------------------------------------------------------------------
-# Tools
+# Tools — all delegate to lumi_core
 # ---------------------------------------------------------------------------
 
 @mcp.tool()
@@ -83,13 +74,16 @@ def tool_record_fragment(
     """Record a life fragment into the local vault.
 
     Routes to Solo/Circles/Events based on context_type.
-    Supports media attachments, emotion tags, and Rashomon stitching.
+    Supports media attachments, emotion tags, and annotation stitching.
     """
-    return _json_result(record_group_fragment(
+    def _resolver(name: str) -> str:
+        return lumi_core.resolve_display_name(name, sender_id)
+
+    return _json_result(lumi_core.record_fragment(
         sender_name, content, story_node_id, interaction_type,
         context_type=context_type, media_path=media_path,
         event_name=event_name, emotion_tag=emotion_tag,
-        group_id=group_id, sender_id=sender_id,
+        group_id=group_id, resolve_sender=_resolver,
     ))
 
 
@@ -100,11 +94,11 @@ def tool_manage_identity(
     account_id: str | None = None,
     original_name: str | None = None,
 ) -> str:
-    """Manage owner profile and contacts in the identity registry.
+    """Manage owner profile and contacts in the Portraits registry.
 
     Actions: init_owner, get_owner, rename, lookup, list_contacts.
     """
-    return _json_result(manage_identity(
+    return _json_result(lumi_core.manage_identity(
         action, display_name=display_name,
         account_id=account_id, original_name=original_name,
     ))
@@ -119,37 +113,44 @@ def tool_manage_event(
     """Start, stop, or query an event scroll.
 
     Actions: start, stop, query.
-    Use group_id for namespace isolation across different groups.
     """
-    return _json_result(manage_event(
+    return _json_result(lumi_core.manage_event(
         action, event_name, group_id=group_id,
     ))
 
 
 @mcp.tool()
-def tool_update_circle_dictionary(
-    target_user: str,
-    traits: list[str],
+def tool_update_portrait(
+    entity_name: str,
+    new_impression: str | None = None,
+    date: str | None = None,
+    is_milestone: bool = False,
+    milestone_label: str | None = None,
+    traits: list[str] | None = None,
 ) -> str:
-    """Record personality traits, slang, or taboos for circle members.
+    """Update a portrait entry with impressions, milestones, or traits.
 
-    Use target_user="group_vibe" for overall group atmosphere.
+    Called when Lumi notices new personality traits or important dates.
     """
-    return _json_result(update_circle_dictionary(target_user, traits))
+    return _json_result(lumi_core.update_portrait(
+        entity_name, new_impression=new_impression,
+        date=date, is_milestone=is_milestone,
+        milestone_label=milestone_label, traits=traits,
+    ))
 
 
 @mcp.tool()
-def tool_save_meme(
-    meme_title: str,
+def tool_save_keepsake(
+    title: str,
     context_tags: list[str],
     media_path: str | None = None,
 ) -> str:
-    """Archive a legendary moment into the meme vault for future callbacks.
+    """Archive a legendary moment into Keepsakes for future callbacks.
 
     Media files are deduplicated via content-addressed MD5 hashing.
     """
-    return _json_result(save_meme(
-        meme_title, context_tags, media_path=media_path,
+    return _json_result(lumi_core.save_keepsake(
+        title, context_tags, media_path=media_path,
     ))
 
 
@@ -166,7 +167,7 @@ def tool_render_canvas(
     Use target_event="today" or "this_month" for daily/monthly views.
     Locale: "en" (default) or "zh" for Chinese UI.
     """
-    return _json_result(render_lumi_canvas(
+    return _json_result(lumi_core.render_lumi_canvas(
         target_event, context_type=context_type,
         vibe_override=vibe_override, group_id=group_id, locale=locale,
     ))
@@ -191,9 +192,8 @@ def tool_manage_fragment(
     """Search, view, update, or delete recorded fragments.
 
     Actions: search, get, update, delete.
-    Supports filtering by sender, keyword, date range, context, and more.
     """
-    return _json_result(manage_fragment(
+    return _json_result(lumi_core.manage_fragment(
         action, fragment_id=fragment_id, keyword=keyword,
         sender=sender, context_type=context_type, group_id=group_id,
         event_name=event_name, story_node_id=story_node_id,
@@ -203,22 +203,39 @@ def tool_manage_fragment(
 
 
 @mcp.tool()
-def tool_export_scroll(
+def tool_export_capsule(
     target_event: str,
     context_type: str = "event",
     vibe_override: str | None = None,
     group_id: str | None = None,
     locale: str = "en",
 ) -> str:
-    """Export a memory scroll for social sharing.
+    """Export a memory capsule (.lumi ZIP) for social sharing.
 
-    Produces HTML scroll + .lumi seed file + optional PNG long image.
-    Locale: "en" (default) or "zh" for Chinese UI.
+    Produces HTML scroll + .lumi capsule + optional PNG screenshot.
     """
-    return _json_result(export_lumi_scroll(
+    return _json_result(lumi_core.export_capsule(
         target_event, context_type=context_type,
         vibe_override=vibe_override, group_id=group_id, locale=locale,
     ))
+
+
+@mcp.tool()
+def tool_import_capsule(file_path: str) -> str:
+    """Import a .lumi capsule and merge its memories into the local vault.
+
+    Existing fragments are preserved; only new annotations are added.
+    """
+    return _json_result(lumi_core.import_capsule(file_path))
+
+
+@mcp.tool()
+def tool_check_time_echoes() -> str:
+    """Check for milestone dates that match today (birthday, anniversary, etc.).
+
+    Returns triggered echoes for Lumi to weave into conversation.
+    """
+    return _json_result(lumi_core.check_time_echoes())
 
 
 if __name__ == "__main__":

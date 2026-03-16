@@ -1,6 +1,6 @@
 [project]
 name = "lumi-diary"
-version = "0.1.5"
+version = "0.2.0"
 description = "Your local-first memory guardian — MCP server for the Lumi Diary skill"
 readme = "README.md"
 license = {text = "MIT"}

@@ -1,12 +1,18 @@
-"""Lumi Diary Skill — src package."""
+"""Lumi Diary Skill v0.2.0 — src package.
 
-from src.handlers import (  # noqa: F401
+Re-exports core functions from ``lumi_core`` for convenience.
+"""
+
+from src.lumi_core import (  # noqa: F401
+    record_fragment,
     manage_identity,
-    record_group_fragment,
     manage_event,
-    update_circle_dictionary,
-    save_meme,
+    update_portrait,
+    save_keepsake,
     render_lumi_canvas,
     manage_fragment,
-    export_lumi_scroll,
+    export_capsule,
+    import_capsule,
+    check_time_echoes,
+    resolve_display_name,
 )

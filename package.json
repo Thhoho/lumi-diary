@@ -1,6 +1,6 @@
 {
   "name": "lumi-diary",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Your local-first memory guardian and cyber bestie. Collects life fragments and stitches them into radiant, interactive memory scrolls.",
   "author": "THHOHO Weiqi",
   "license": "MIT",
@@ -12,8 +12,9 @@
     "local-first",
     "privacy",
     "journal",
-    "rashomon",
-    "canvas"
+    "canvas",
+    "portraits",
+    "capsule"
   ],
   "repository": {
     "type": "git",

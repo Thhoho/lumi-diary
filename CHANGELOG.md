@@ -2,6 +2,43 @@
 
 All notable changes to Lumi Diary Skill will be documented in this file.
 
+## [0.2.0] — 2026-03-14
+
+### Architecture
+
+- **Adapter Pattern** — core business logic extracted to `src/lumi_core.py` (platform-agnostic). OpenClaw adapter (`src/openclaw_skill.py`) and MCP adapter (`src/mcp_server.py`) are thin wrappers.
+- **Environment-based Vault** — vault root configurable via `LUMI_VAULT_PATH` env var (default: `./Lumi_Vault`).
+
+### Data Model
+
+- **Fragment → Annotation → Canvas** — new data philosophy replacing "Rashomon" terminology. Each node has one primary `fragment` and a list of `annotations` (companion perspectives).
+- **`lumi.json` v0.2.0 schema** — `timeline` → `node` → `fragment` + `annotations[]`.
+
+### Added
+
+- **Git-style Hash Sharding** — `Assets/` now uses 2-char MD5 prefix subdirectories (e.g., `Assets/a1/a1b2c3d4...jpg`) for scalable media storage. Backward-compatible migration of legacy flat files.
+- **Portraits System** (`Portraits.json`) — consolidated `identity.json` + `Circle_Dictionary.json` into a single registry with `milestones`, `evolving_impressions`, and `traits`.
+- **`update_portrait()`** — dynamic personality/milestone updates during conversation.
+- **`check_time_echoes()`** — scans Portraits for milestone dates matching today (birthday, anniversary) for proactive reminders.
+- **Time Echoes Protocol** — system prompt instructs Lumi to check milestones at conversation start and generate exclusive canvases.
+- **Keepsakes** (`Keepsakes.json`) — renamed from `Meme_Vault.json` with `save_keepsake()` function.
+- **`.lumi` Capsule Export** (`export_capsule()`) — ZIP-based capsule containing `lumi.json`, `index.html`, and copied media files. Replaces the old base64-embedded JSON seed.
+- **`.lumi` Capsule Import** (`import_capsule()`) — unzip, merge annotations for existing nodes (no overwrite of local fragments), copy assets into sharded storage.
+
+### Changed
+
+- **Terminology** — `rashomon_perspectives` → `annotations`, `Meme_Vault` → `Keepsakes`, `Circle_Dictionary` → `Portraits`, `rashomon_cards` → `annotation_cards`, `rashomon_stitched` → `annotation_stitched`.
+- **Tools renamed** — `update_circle_dictionary` → `update_portrait`, `save_meme` → `save_keepsake`, `export_lumi_scroll` → `export_capsule`.
+- **Canvas rendering** — updated to use `annotation_cards` and `keepsakes` in payload. Keepsakes gallery replaces Meme gallery.
+- **MCP Server** — rewritten to call `lumi_core` instead of `handlers`.
+
+### Removed
+
+- **`src/handlers.py`** — split into `lumi_core.py` (core) + `openclaw_skill.py` (adapter).
+- **`identity.json`** — migrated to `Portraits.json` on first load.
+- **`Circle_Dictionary.json`** — migrated to `Portraits.json` on first load.
+- **`Meme_Vault.json`** — renamed to `Keepsakes.json`.
+
 ## [0.1.5] — 2026-03-15
 
 ### Added
